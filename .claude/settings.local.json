@@ -6,7 +6,16 @@
       "Bash(npm init:*)",
       "Bash(npm install:*)",
       "Bash(docker-compose up:*)",
-      "Bash(docker-compose down:*)"
+      "Bash(docker-compose down:*)",
+      "Bash(curl:*)",
+      "Bash(npx prisma init)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(npx prisma db seed)",
+      "Bash(npm test:*)",
+      "Bash(pkill:*)",
+      "Bash(python3:*)",
+      "Skill(superpowers:finishing-a-development-branch)",
+      "Bash(git rev-parse:*)"
     ],
     "deny": [],
     "ask": []

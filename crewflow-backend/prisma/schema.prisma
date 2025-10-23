@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id                String   @id @default(uuid())
+  name              String
+  subscriptionTier  String   @default("standard")
+  settings          Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+
+  users             User[]
+  projects          Project[]
+  timecards         Timecard[]
+  costCodes         CostCode[]
+  integrations      Integration[]
+
+  @@map("companies")
+}
+
+enum UserRole {
+  FIELD_WORKER
+  FOREMAN
+  PROJECT_MANAGER
+  ADMIN
+  OWNER
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  INACTIVE
+}
+
+model User {
+  id                String      @id @default(uuid())
+  companyId         String
+  email             String      @unique
+  passwordHash      String?
+  name              String
+  role              UserRole
+  status            UserStatus  @default(ACTIVE)
+  phoneNumber       String?
+  profilePhotoUrl   String?
+  biometricEnabled  Boolean     @default(false)
+  settings          Json        @default("{}")
+  lastLoginAt       DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  deletedAt         DateTime?
+
+  company           Company     @relation(fields: [companyId], references: [id])
+  timecards         Timecard[]
+  approvedTimecards Timecard[]  @relation("ApprovedBy")
+  createdProjects   Project[]   @relation("CreatedBy")
+
+  @@index([companyId])
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+model Project {
+  id              String        @id @default(uuid())
+  companyId       String
+  name            String
+  projectNumber   String?
+  clientName      String?
+  address         String?
+  latitude        Decimal?      @db.Decimal(10, 8)
+  longitude       Decimal?      @db.Decimal(11, 8)
+  geofenceRadius  Int           @default(100)
+  status          ProjectStatus @default(ACTIVE)
+  startDate       DateTime?
+  endDate         DateTime?
+  budgetHours     Decimal?      @db.Decimal(10, 2)
+  budgetAmount    Decimal?      @db.Decimal(12, 2)
+  settings        Json          @default("{}")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+  createdById     String?
+
+  company         Company       @relation(fields: [companyId], references: [id])
+  createdBy       User?         @relation("CreatedBy", fields: [createdById], references: [id])
+  timecards       Timecard[]
+
+  @@index([companyId])
+  @@index([status])
+  @@map("projects")
+}
+
+model CostCode {
+  id          String    @id @default(uuid())
+  companyId   String
+  projectId   String?
+  code        String
+  description String
+  category    String?
+  icon        String?
+  color       String?
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  company     Company   @relation(fields: [companyId], references: [id])
+  timecards   Timecard[]
+
+  @@unique([companyId, code, projectId])
+  @@index([companyId])
+  @@map("cost_codes")
+}
+
+enum TimecardStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model Timecard {
+  id                  String          @id @default(uuid())
+  companyId           String
+  workerId            String
+  projectId           String
+  costCodeId          String
+  clockIn             DateTime
+  clockOut            DateTime?
+  clockInLatitude     Decimal?        @db.Decimal(10, 8)
+  clockInLongitude    Decimal?        @db.Decimal(11, 8)
+  clockOutLatitude    Decimal?        @db.Decimal(10, 8)
+  clockOutLongitude   Decimal?        @db.Decimal(11, 8)
+  clockInPhotoUrl     String?
+  clockOutPhotoUrl    String?
+  clockInMethod       String?
+  clockOutMethod      String?
+  breakMinutes        Int             @default(0)
+  notes               String?
+  isOvertime          Boolean         @default(false)
+  status              TimecardStatus  @default(DRAFT)
+  approvedById        String?
+  approvedAt          DateTime?
+  syncedAt            DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  deletedAt           DateTime?
+
+  company             Company         @relation(fields: [companyId], references: [id])
+  worker              User            @relation(fields: [workerId], references: [id])
+  project             Project         @relation(fields: [projectId], references: [id])
+  costCode            CostCode        @relation(fields: [costCodeId], references: [id])
+  approvedBy          User?           @relation("ApprovedBy", fields: [approvedById], references: [id])
+
+  @@index([companyId])
+  @@index([workerId])
+  @@index([projectId])
+  @@index([clockIn])
+  @@index([status])
+  @@map("timecards")
+}
+
+model Integration {
+  id            String    @id @default(uuid())
+  companyId     String
+  type          String
+  enabled       Boolean   @default(false)
+  config        Json      @default("{}")
+  lastSyncAt    DateTime?
+  status        String    @default("pending")
+  errorMessage  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  company       Company   @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, type])
+  @@map("integrations")
+}
+
+model SyncEvent {
+  id          String   @id @default(uuid())
+  deviceId    String
+  userId      String
+  eventType   String
+  entityType  String
+  entityId    String
+  payload     Json
+  timestamp   DateTime @default(now())
+  synced      Boolean  @default(false)
+
+  @@index([deviceId, timestamp])
+  @@index([synced])
+  @@map("sync_events")
+}
