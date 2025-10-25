@@ -87,6 +87,16 @@ describe('UserService', () => {
   });
 
   describe('listUsers', () => {
+    beforeEach(async () => {
+      // Clean up users before each test to ensure isolation
+      await prisma.user.deleteMany({ 
+        where: { 
+          companyId: testCompanyId,
+          email: { in: ['list1@test.com', 'list2@test.com'] }
+        } 
+      });
+    });
+
     it('should list all users for company', async () => {
       const user1 = await prisma.user.create({
         data: {

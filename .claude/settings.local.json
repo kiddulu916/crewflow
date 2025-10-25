@@ -22,7 +22,8 @@
       "Bash(xargs kill:*)",
       "Read(//tmp/**)",
       "Bash(chmod:*)",
-      "Bash(/tmp/test_user_api.sh)"
+      "Bash(/tmp/test_user_api.sh)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

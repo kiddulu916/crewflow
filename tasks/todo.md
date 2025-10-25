@@ -205,3 +205,199 @@ crewflow-backend/
 **Phase 1 Status:** ✅ COMPLETE
 **All Tests:** ✅ PASSING
 **Ready for:** Phase 2 or Git initialization
+
+---
+
+# Task 2: Projects API - REST Endpoints (Phase 3)
+
+## Plan
+
+### Step 1: Write Failing Integration Tests
+- [x] Create `tests/integration/project.api.test.ts`
+- [x] Add test setup (company, users with different roles, tokens)
+- [x] Add test cleanup
+- [x] Write all test cases (should FAIL initially):
+  - POST /api/v1/projects - create with OWNER (pass)
+  - POST /api/v1/projects - create with ADMIN (pass)
+  - POST /api/v1/projects - create with FIELD_WORKER (403)
+  - POST /api/v1/projects - without auth (401)
+  - GET /api/v1/projects - list projects
+  - GET /api/v1/projects?status=ACTIVE - filter by status
+  - GET /api/v1/projects?search=test - search projects
+  - GET /api/v1/projects/:id - get single project
+  - GET /api/v1/projects/:id - not found (404)
+  - PUT /api/v1/projects/:id - update with OWNER
+  - PUT /api/v1/projects/:id - update with FIELD_WORKER (403)
+  - DELETE /api/v1/projects/:id - soft delete with OWNER
+  - DELETE /api/v1/projects/:id - soft delete with FIELD_WORKER (403)
+- [x] Run tests to verify they FAIL (Result: 12 failed, 1 passed - 404 errors as expected)
+
+### Step 2: Create ProjectController
+- [x] Create `src/controllers/project.controller.ts`
+- [x] Implement createProject method
+- [x] Implement getProject method
+- [x] Implement listProjects method
+- [x] Implement updateProject method
+- [x] Implement deleteProject method
+- [x] Add proper error handling
+
+### Step 3: Create Project Routes
+- [x] Create `src/routes/project.routes.ts`
+- [x] Define POST / with MANAGE_PROJECTS permission
+- [x] Define GET / with authenticate only
+- [x] Define GET /:id with authenticate only
+- [x] Define PUT /:id with MANAGE_PROJECTS permission
+- [x] Define DELETE /:id with MANAGE_PROJECTS permission
+
+### Step 4: Mount Routes in Main App
+- [x] Import projectRoutes in `src/index.ts`
+- [x] Mount routes at `/api/v1/projects`
+
+### Step 5: Verify Tests Pass
+- [x] Run integration tests
+- [x] Verify all tests pass (13/13 passing)
+- [x] No TypeScript compilation errors
+
+---
+
+## Review - Task 2 Complete (2025-10-25)
+
+### Summary of Changes
+
+Successfully implemented Task 2 of Phase 3: Projects API REST Endpoints following TDD methodology.
+
+### Files Created
+
+1. **`tests/integration/project.api.test.ts`** (330 lines)
+   - Comprehensive integration tests for all project endpoints
+   - Test setup with 3 users (OWNER, ADMIN, FIELD_WORKER) and tokens
+   - 13 test cases covering CRUD operations, RBAC, filtering, and search
+   - Proper test cleanup to avoid data leaks
+
+2. **`src/controllers/project.controller.ts`** (137 lines)
+   - ProjectController with 5 methods (create, get, list, update, delete)
+   - Proper error handling (ValidationError → 400, NotFoundError → 404)
+   - Company scoping using req.user.companyId
+   - Date conversion for startDate/endDate fields
+   - Type-safe query parameters
+
+3. **`src/routes/project.routes.ts`** (28 lines)
+   - Express router with project endpoints
+   - RBAC enforcement: MANAGE_PROJECTS permission for create/update/delete
+   - Authentication required for all routes
+   - List and get operations available to all authenticated users
+
+### Files Modified
+
+1. **`src/index.ts`**
+   - Added import for projectRoutes
+   - Mounted routes at `/api/v1/projects`
+   - Impact: 2 lines added (minimal change)
+
+### Implementation Approach
+
+Followed strict TDD methodology:
+1. **RED**: Wrote 13 failing tests first (all returned 404)
+2. **GREEN**: Implemented controller, routes, and mounted in app
+3. **REFACTOR**: Code already follows existing patterns, no refactoring needed
+
+### Test Results
+
+**Integration Tests:**
+- ✅ POST /api/v1/projects - create with OWNER (201)
+- ✅ POST /api/v1/projects - create with ADMIN (201)
+- ✅ POST /api/v1/projects - create with FIELD_WORKER (403 - no permission)
+- ✅ POST /api/v1/projects - without auth (401)
+- ✅ GET /api/v1/projects - list all projects
+- ✅ GET /api/v1/projects?status=ACTIVE - filter by status
+- ✅ GET /api/v1/projects?search=test - search projects
+- ✅ GET /api/v1/projects/:id - get single project
+- ✅ GET /api/v1/projects/:id - not found (404)
+- ✅ PUT /api/v1/projects/:id - update with OWNER
+- ✅ PUT /api/v1/projects/:id - update with FIELD_WORKER (403 - no permission)
+- ✅ DELETE /api/v1/projects/:id - soft delete with OWNER
+- ✅ DELETE /api/v1/projects/:id - soft delete with FIELD_WORKER (403 - no permission)
+
+**Total:** 13/13 tests passing
+
+**TypeScript Compilation:** ✅ No errors
+
+### RBAC Verification
+
+Authorization working correctly:
+- **MANAGE_PROJECTS** permission required for:
+  - POST /api/v1/projects (create)
+  - PUT /api/v1/projects/:id (update)
+  - DELETE /api/v1/projects/:id (soft delete)
+- **Roles with permission:** OWNER, ADMIN, PROJECT_MANAGER
+- **Roles without permission:** FOREMAN, FIELD_WORKER (correctly return 403)
+- **All authenticated users** can list and view projects
+
+### Code Simplicity Assessment
+
+All changes followed maximum simplicity principle:
+
+1. **Pattern Consistency**: Followed exact patterns from user.controller.ts and user.routes.ts
+2. **Minimal Files**: Only 3 new files created (1 test, 1 controller, 1 route)
+3. **Targeted Changes**: Only 2 lines added to existing code (src/index.ts)
+4. **No Over-Engineering**: Direct implementations, no unnecessary abstractions
+5. **Error Handling**: Simple try-catch blocks with custom error classes
+6. **Type Safety**: Full TypeScript type safety with Prisma types
+
+**Files Modified:** 1 (`src/index.ts` - 2 lines)
+**Files Created:** 3 (test, controller, routes)
+**Lines of Code:** ~495 total (~330 test, ~165 implementation)
+
+### Key Features Implemented
+
+1. **Company Scoping**: All operations scoped to req.user.companyId
+2. **RBAC**: Proper permission checks with requirePermission middleware
+3. **Filtering**: Support for status and search query parameters
+4. **Error Handling**: Proper HTTP status codes (400, 401, 403, 404, 500)
+5. **Soft Delete**: Projects are soft-deleted (deletedAt timestamp)
+6. **Type Safety**: Full TypeScript support with Prisma types
+7. **Authentication**: All routes require valid JWT tokens
+
+### Next Steps
+
+Phase 3, Task 2 is complete. Ready to proceed with Phase 3, Task 3 or other features.
+
+---
+
+# Task 4: Timecards API - REST Endpoints (Phase 3)
+
+## Plan
+
+### Step 1: Add MANAGE_TIMECARDS Permission
+- [ ] Add MANAGE_TIMECARDS permission to Permission enum in rbac.ts
+- [ ] Update role permissions (PROJECT_MANAGER, ADMIN, OWNER should have it)
+
+### Step 2: Write Failing Integration Tests
+- [ ] Create tests/integration/timecard.api.test.ts
+- [ ] Set up test users (OWNER, PROJECT_MANAGER, FIELD_WORKER) with tokens
+- [ ] Set up test data (company, project, cost code)
+- [ ] Write 18 test cases for all CRUD operations
+- [ ] Run tests to verify they fail (routes don't exist yet)
+
+### Step 3: Create TimecardController
+- [ ] Create src/controllers/timecard.controller.ts
+- [ ] Implement createTimecard method
+- [ ] Implement getTimecard method
+- [ ] Implement listTimecards method (with date filtering)
+- [ ] Implement updateTimecard method (with self-service logic)
+- [ ] Implement deleteTimecard method
+
+### Step 4: Create Timecard Routes
+- [ ] Create src/routes/timecard.routes.ts
+- [ ] Define all 5 routes with proper middleware
+- [ ] Apply RBAC where needed
+
+### Step 5: Mount Routes in Main App
+- [ ] Update src/index.ts to mount /api/v1/timecards routes
+
+### Step 6: Verify Tests Pass
+- [ ] Run integration tests - all 18 should pass
+- [ ] Run full test suite - no regressions
+
+## Review Section
+(To be filled after completion)

@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import companyRoutes from './routes/company.routes';
+import projectRoutes from './routes/project.routes';
+import timecardRoutes from './routes/timecard.routes';
 
 dotenv.config();
 
@@ -22,6 +24,8 @@ app.use(morgan('combined'));
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/company', companyRoutes);
+app.use('/api/v1/projects', projectRoutes);
+app.use('/api/v1/timecards', timecardRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

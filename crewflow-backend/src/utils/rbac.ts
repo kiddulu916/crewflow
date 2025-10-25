@@ -7,6 +7,7 @@ export enum Permission {
   APPROVE_TIME = 'approve:time',
   VIEW_ALL_TIME = 'view:all_time',
   MANAGE_PROJECTS = 'manage:projects',
+  MANAGE_TIMECARDS = 'manage:timecards',
   MANAGE_USERS = 'manage:users',
   VIEW_FINANCIALS = 'view:financials',
   EXPORT_PAYROLL = 'export:payroll',
@@ -28,12 +29,14 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     Permission.VIEW_ALL_TIME,
     Permission.APPROVE_TIME,
     Permission.MANAGE_PROJECTS,
+    Permission.MANAGE_TIMECARDS,
     Permission.VIEW_FINANCIALS
   ],
   ADMIN: [
     Permission.VIEW_ALL_TIME,
     Permission.APPROVE_TIME,
     Permission.MANAGE_PROJECTS,
+    Permission.MANAGE_TIMECARDS,
     Permission.MANAGE_USERS,
     Permission.VIEW_FINANCIALS,
     Permission.EXPORT_PAYROLL,
