@@ -15,7 +15,14 @@
       "Bash(pkill:*)",
       "Bash(python3:*)",
       "Skill(superpowers:finishing-a-development-branch)",
-      "Bash(git rev-parse:*)"
+      "Bash(git rev-parse:*)",
+      "SlashCommand(/superpowers:write-plan)",
+      "Bash(lsof:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzODc3ODg5NS0xYzg3LTRkNGMtYTU3ZC01Zjg0N2QzNzcyNWMiLCJjb21wYW55SWQiOiIzMjNjMjdmYi1hYjU4LTQ2NTctOTRmNS01ZDIwNWI3NmY5ZjgiLCJyb2xlIjoiT1dORVIiLCJzZXNzaW9uSWQiOiJzZXNzaW9uOjM4Nzc4ODk1LTFjODctNGQ0Yy1hNTdkLTVmODQ3ZDM3NzI1YzoxNzYxMjM1MTY3Nzc1IiwiaWF0IjoxNzYxMjM1MTY3LCJleHAiOjE3NjEyMzYwNjd9.9RCV2Nxt-yU-7t0AiUrttdl459TiYfLPhb66xUbykLM\")",
+      "Bash(xargs kill:*)",
+      "Read(//tmp/**)",
+      "Bash(chmod:*)",
+      "Bash(/tmp/test_user_api.sh)"
     ],
     "deny": [],
     "ask": []

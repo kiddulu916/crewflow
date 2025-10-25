@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
+import companyRoutes from './routes/company.routes';
 
 dotenv.config();
 
@@ -18,6 +20,8 @@ app.use(morgan('combined'));
 
 // Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/company', companyRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
