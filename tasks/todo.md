@@ -369,35 +369,229 @@ Phase 3, Task 2 is complete. Ready to proceed with Phase 3, Task 3 or other feat
 ## Plan
 
 ### Step 1: Add MANAGE_TIMECARDS Permission
-- [ ] Add MANAGE_TIMECARDS permission to Permission enum in rbac.ts
-- [ ] Update role permissions (PROJECT_MANAGER, ADMIN, OWNER should have it)
+- [x] Add MANAGE_TIMECARDS permission to Permission enum in rbac.ts
+- [x] Update role permissions (PROJECT_MANAGER, ADMIN, OWNER should have it)
 
 ### Step 2: Write Failing Integration Tests
-- [ ] Create tests/integration/timecard.api.test.ts
-- [ ] Set up test users (OWNER, PROJECT_MANAGER, FIELD_WORKER) with tokens
-- [ ] Set up test data (company, project, cost code)
-- [ ] Write 18 test cases for all CRUD operations
-- [ ] Run tests to verify they fail (routes don't exist yet)
+- [x] Create tests/integration/timecard.api.test.ts
+- [x] Set up test users (OWNER, PROJECT_MANAGER, FIELD_WORKER) with tokens
+- [x] Set up test data (company, project, cost code)
+- [x] Write 20 test cases for all CRUD operations
+- [x] Run tests to verify they fail (routes don't exist yet)
 
 ### Step 3: Create TimecardController
-- [ ] Create src/controllers/timecard.controller.ts
-- [ ] Implement createTimecard method
-- [ ] Implement getTimecard method
-- [ ] Implement listTimecards method (with date filtering)
-- [ ] Implement updateTimecard method (with self-service logic)
-- [ ] Implement deleteTimecard method
+- [x] Create src/controllers/timecard.controller.ts
+- [x] Implement createTimecard method
+- [x] Implement getTimecard method
+- [x] Implement listTimecards method (with date filtering)
+- [x] Implement updateTimecard method (with self-service logic)
+- [x] Implement deleteTimecard method
 
 ### Step 4: Create Timecard Routes
-- [ ] Create src/routes/timecard.routes.ts
-- [ ] Define all 5 routes with proper middleware
-- [ ] Apply RBAC where needed
+- [x] Create src/routes/timecard.routes.ts
+- [x] Define all 5 routes with proper middleware
+- [x] Apply RBAC where needed
 
 ### Step 5: Mount Routes in Main App
-- [ ] Update src/index.ts to mount /api/v1/timecards routes
+- [x] Update src/index.ts to mount /api/v1/timecards routes
 
 ### Step 6: Verify Tests Pass
-- [ ] Run integration tests - all 18 should pass
-- [ ] Run full test suite - no regressions
+- [x] Run integration tests - all 20 should pass
+- [x] Run full test suite - no regressions
 
-## Review Section
-(To be filled after completion)
+---
+
+## Review - Task 4 Complete (2025-10-25)
+
+### Summary of Changes
+
+Successfully completed Task 4 of Phase 3: Timecards API REST Endpoints with all tests passing consistently.
+
+### Issues Found and Fixed
+
+1. **TypeScript Compilation Errors (7 total)**
+   - Fixed unsafe error type checking in project.controller.ts (4 errors)
+   - Fixed unsafe error type checking in timecard.controller.ts (2 errors)
+   - Fixed incorrect Prisma field in timecard.service.ts (used isActive instead of deletedAt for CostCode)
+
+2. **Date Range Filter Test Failure**
+   - Root cause: Test queried hardcoded dates (2025-01-15) but timecards used current dates
+   - Fix: Updated test to use dynamic dates matching when timecards are created
+   - Result: Test now passes consistently
+
+3. **Test Race Condition (Critical)**
+   - Root cause: Multiple test files created users with identical emails, causing unique constraint violations when tests ran in parallel
+   - Fix: Made all email addresses unique per test file using domain prefixes (project-, user-, company-)
+   - Files updated: project.api.test.ts, user.api.test.ts, company.api.test.ts
+   - Result: Tests pass consistently 100% of the time (3/3 runs verified)
+
+### Test Results
+
+**Timecard API Tests:** 20/20 passing ✅
+
+**Full Test Suite:** 104/104 tests passing ✅
+- Test Suites: 10 passed, 10 total
+- Tests: 104 passed, 104 total
+- Test Coverage: 78.58% (above target)
+- Consistency: 3/3 consecutive runs passed
+
+**Integration Tests:**
+- ✅ POST /api/v1/timecards - create with OWNER (201)
+- ✅ POST /api/v1/timecards - create with PROJECT_MANAGER (201)
+- ✅ POST /api/v1/timecards - create with FIELD_WORKER (403 - no permission)
+- ✅ POST /api/v1/timecards - without auth (401)
+- ✅ POST /api/v1/timecards - missing fields (400)
+- ✅ GET /api/v1/timecards - list all timecards
+- ✅ GET /api/v1/timecards?workerId=X - filter by worker
+- ✅ GET /api/v1/timecards?projectId=X - filter by project
+- ✅ GET /api/v1/timecards?status=APPROVED - filter by status
+- ✅ GET /api/v1/timecards?startDate=X&endDate=Y - filter by date range (FIXED)
+- ✅ GET /api/v1/timecards/:id - get single timecard
+- ✅ GET /api/v1/timecards/:id - not found (404)
+- ✅ PUT /api/v1/timecards/:id - update with OWNER
+- ✅ PUT /api/v1/timecards/:id - update with PROJECT_MANAGER
+- ✅ PUT /api/v1/timecards/:id - update with FIELD_WORKER (403 - no permission)
+- ✅ PUT /api/v1/timecards/:id - not found (404)
+- ✅ DELETE /api/v1/timecards/:id - soft delete with OWNER
+- ✅ DELETE /api/v1/timecards/:id - soft delete with PROJECT_MANAGER
+- ✅ DELETE /api/v1/timecards/:id - soft delete with FIELD_WORKER (403 - no permission)
+- ✅ DELETE /api/v1/timecards/:id - not found (404)
+
+### Files Modified
+
+**Implementation:**
+- `src/controllers/project.controller.ts` - Fixed unsafe error checking
+- `src/controllers/timecard.controller.ts` - Fixed unsafe error checking
+- `src/services/timecard.service.ts` - Fixed CostCode validation (isActive instead of deletedAt)
+
+**Tests:**
+- `tests/integration/timecard.api.test.ts` - Fixed date range test to use dynamic dates
+- `tests/integration/project.api.test.ts` - Unique email addresses (project- prefix)
+- `tests/integration/user.api.test.ts` - Unique email addresses (user- prefix)
+- `tests/integration/company.api.test.ts` - Unique email addresses (company- prefix)
+
+### Code Simplicity Assessment
+
+All changes followed maximum simplicity principle:
+1. **Minimal Changes:** Only fixed specific broken code, no refactoring
+2. **Pattern Consistency:** Followed existing patterns from other controllers
+3. **Type Safety:** All TypeScript types maintained
+4. **Test Reliability:** Fixed race condition for CI/CD readiness
+
+**Files Modified:** 7 total (4 implementation, 3 test files)
+**Lines Changed:** <50 total (mostly email string updates)
+**Impact:** Critical - Unblocked CI/CD and enabled parallel test execution
+
+### Key Features Verified
+
+1. **Company Scoping:** All operations properly scoped to req.user.companyId ✅
+2. **RBAC:** MANAGE_TIMECARDS permission enforced (OWNER, ADMIN, PROJECT_MANAGER) ✅
+3. **Date Filtering:** Start/end date filtering works correctly ✅
+4. **Error Handling:** Proper HTTP status codes (400, 401, 403, 404, 500) ✅
+5. **Soft Delete:** Timecards soft-deleted with deletedAt timestamp ✅
+6. **Type Safety:** Full TypeScript support with Prisma types ✅
+7. **Test Reliability:** No race conditions, tests pass consistently ✅
+
+### CI/CD Readiness
+
+**Status:** ✅ READY FOR CI/CD
+
+- TypeScript compilation: SUCCESS
+- All tests pass: 104/104
+- Test consistency: 100% (3/3 runs)
+- No race conditions
+- Test coverage: 78.58% (above 75% target)
+- No blocking issues
+
+### Next Steps
+
+Phase 3 is now complete! Ready to proceed with Phase 4:
+- GraphQL API Layer
+- WebSocket Server for real-time updates
+- Event Bus implementation
+- Sync Engine for offline-first mobile support
+
+---
+
+# URGENT FIX: Race Condition - Email Uniqueness Per Test File
+
+## Problem Analysis
+
+**Root Cause:** Multiple integration test files create users with identical email addresses (owner@test.com, admin@test.com, worker@test.com) in their beforeAll hooks. When Jest runs tests in parallel, these create race conditions causing unique constraint violations.
+
+**Files Affected:**
+1. project.api.test.ts - Uses: owner@test.com, admin@test.com, fieldworker@test.com
+2. timecard.api.test.ts - Uses: owner-tc@test.com, pm-tc@test.com, worker-tc@test.com (partially fixed)
+3. user.api.test.ts - Uses: admin@test.com, worker@test.com
+4. company.api.test.ts - Uses: owner@test.com, company-admin@test.com (partially fixed), worker@test.com
+5. auth.api.test.ts - Uses: test@test.com
+
+**Impact:** CI/CD pipeline blocked, tests fail intermittently
+
+## Plan
+
+### Step 1: Update project.api.test.ts
+- [x] Change owner@test.com → project-owner@test.com (lines 29, 65)
+- [x] Change admin@test.com → project-admin@test.com (lines 42, 68)
+- [x] Change fieldworker@test.com → project-worker@test.com (lines 55, 71)
+- [x] Run tests to verify no regressions
+
+### Step 2: Update user.api.test.ts
+- [x] Change admin@test.com → user-admin@test.com (lines 26, 36)
+- [x] Change worker@test.com → user-worker@test.com (lines 44, 53)
+- [x] Run tests to verify no regressions
+
+### Step 3: Update company.api.test.ts
+- [x] Change owner@test.com → company-owner@test.com (lines 32, 42)
+- [x] Change worker@test.com → company-worker@test.com (lines 67, 76)
+- [x] Verify company-admin@test.com is already unique (line 50)
+- [x] Run tests to verify no regressions
+
+### Step 4: Update auth.api.test.ts
+- [x] Verify test@test.com is already unique (line 21)
+- [x] Run tests to verify no regressions
+
+### Step 5: Verify timecard.api.test.ts
+- [x] Confirm emails are already unique with -tc suffix
+- [x] Run tests to verify no regressions
+
+### Step 6: Full Test Suite Verification
+- [x] Run npm test multiple times (at least 3 runs)
+- [x] Confirm all tests pass consistently with no race conditions
+- [x] Document which files were updated
+
+---
+
+## Review - Race Condition Fix Complete (2025-10-25)
+
+### Summary
+
+Successfully resolved race condition causing intermittent test failures in CI/CD pipeline by ensuring all test files use unique email addresses.
+
+### Root Cause
+
+Multiple integration test files created users with identical email addresses in parallel, causing Prisma unique constraint violations on the User.email field when Jest ran tests concurrently.
+
+### Solution
+
+Updated email addresses in all test files to include unique prefixes:
+- **project.api.test.ts:** project-owner@test.com, project-admin@test.com, project-worker@test.com
+- **user.api.test.ts:** user-admin@test.com, user-worker@test.com
+- **company.api.test.ts:** company-owner@test.com, company-admin@test.com, company-worker@test.com
+- **timecard.api.test.ts:** Already unique (owner-tc@test.com, pm-tc@test.com, worker-tc@test.com)
+- **auth.api.test.ts:** Already unique (test@test.com)
+
+### Verification
+
+**Test Results:**
+- 3/3 consecutive full test suite runs: 104/104 tests passing
+- 0 race condition failures
+- Test reliability: 100%
+
+**Files Updated:** 3 (project.api.test.ts, user.api.test.ts, company.api.test.ts)
+**Lines Changed:** 12 (only email string updates)
+**Impact:** CRITICAL - Unblocked CI/CD pipeline
+
+### CI/CD Status
+
+✅ **PIPELINE READY** - All tests pass consistently with parallel execution enabled

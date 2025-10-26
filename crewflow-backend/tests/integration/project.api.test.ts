@@ -26,7 +26,7 @@ describe('Project API', () => {
     const owner = await prisma.user.create({
       data: {
         companyId: testCompanyId,
-        email: 'owner@test.com',
+        email: 'project-owner@test.com',
         passwordHash: ownerPasswordHash,
         name: 'Owner User',
         role: 'OWNER'
@@ -39,7 +39,7 @@ describe('Project API', () => {
     const admin = await prisma.user.create({
       data: {
         companyId: testCompanyId,
-        email: 'admin@test.com',
+        email: 'project-admin@test.com',
         passwordHash: adminPasswordHash,
         name: 'Admin User',
         role: 'ADMIN'
@@ -52,7 +52,7 @@ describe('Project API', () => {
     const fieldWorker = await prisma.user.create({
       data: {
         companyId: testCompanyId,
-        email: 'fieldworker@test.com',
+        email: 'project-worker@test.com',
         passwordHash: fieldWorkerPasswordHash,
         name: 'Field Worker',
         role: 'FIELD_WORKER'
@@ -62,13 +62,13 @@ describe('Project API', () => {
 
     // Get access tokens
     const authService = new AuthService();
-    const ownerResult = await authService.login('owner@test.com', 'password123');
+    const ownerResult = await authService.login('project-owner@test.com', 'password123');
     ownerToken = ownerResult.accessToken;
 
-    const adminResult = await authService.login('admin@test.com', 'password123');
+    const adminResult = await authService.login('project-admin@test.com', 'password123');
     adminToken = adminResult.accessToken;
 
-    const workerResult = await authService.login('fieldworker@test.com', 'password123');
+    const workerResult = await authService.login('project-worker@test.com', 'password123');
     fieldWorkerToken = workerResult.accessToken;
   });
 

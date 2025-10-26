@@ -29,7 +29,7 @@ describe('Company API', () => {
     const owner = await prisma.user.create({
       data: {
         companyId: testCompanyId,
-        email: 'owner@test.com',
+        email: 'company-owner@test.com',
         passwordHash: ownerPasswordHash,
         name: 'Owner User',
         role: 'OWNER'
@@ -39,7 +39,7 @@ describe('Company API', () => {
 
     // Get owner access token
     const authService = new AuthService();
-    const ownerResult = await authService.login('owner@test.com', 'password123');
+    const ownerResult = await authService.login('company-owner@test.com', 'password123');
     ownerToken = ownerResult.accessToken;
 
     // Create ADMIN user
@@ -64,7 +64,7 @@ describe('Company API', () => {
     const worker = await prisma.user.create({
       data: {
         companyId: testCompanyId,
-        email: 'worker@test.com',
+        email: 'company-worker@test.com',
         passwordHash: workerPasswordHash,
         name: 'Field Worker',
         role: 'FIELD_WORKER'
@@ -73,7 +73,7 @@ describe('Company API', () => {
     fieldWorkerUserId = worker.id;
 
     // Get field worker token
-    const workerResult = await authService.login('worker@test.com', 'password123');
+    const workerResult = await authService.login('company-worker@test.com', 'password123');
     fieldWorkerToken = workerResult.accessToken;
   });
 

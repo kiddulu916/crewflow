@@ -23,7 +23,7 @@ describe('User API', () => {
     const admin = await prisma.user.create({
       data: {
         companyId: testCompanyId,
-        email: 'admin@test.com',
+        email: 'user-admin@test.com',
         passwordHash,
         name: 'Admin User',
         role: 'ADMIN'
@@ -33,7 +33,7 @@ describe('User API', () => {
 
     // Get access token
     const authService = new AuthService();
-    const result = await authService.login('admin@test.com', 'password123');
+    const result = await authService.login('user-admin@test.com', 'password123');
     accessToken = result.accessToken;
 
     // Create field worker user
@@ -41,7 +41,7 @@ describe('User API', () => {
     const fieldWorker = await prisma.user.create({
       data: {
         companyId: testCompanyId,
-        email: 'worker@test.com',
+        email: 'user-worker@test.com',
         passwordHash: fieldWorkerPasswordHash,
         name: 'Field Worker',
         role: 'FIELD_WORKER'
@@ -50,7 +50,7 @@ describe('User API', () => {
     fieldWorkerUserId = fieldWorker.id;
 
     // Get field worker token
-    const workerResult = await authService.login('worker@test.com', 'password123');
+    const workerResult = await authService.login('user-worker@test.com', 'password123');
     fieldWorkerToken = workerResult.accessToken;
   });
 
@@ -173,7 +173,7 @@ describe('User API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.id).toBe(adminUserId);
-      expect(response.body.email).toBe('admin@test.com');
+      expect(response.body.email).toBe('user-admin@test.com');
       expect(response.body).not.toHaveProperty('passwordHash');
     });
 
